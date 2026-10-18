@@ -1,0 +1,196 @@
+{
+ "veri": {
+  "n": 569,
+  "p": 30,
+  "kotu": 212,
+  "iyi": 357
+ },
+ "kesif": {
+  "eksik": 0,
+  "aykiri_satir": 171,
+  "aykiri_kotu_orani": 0.6666666666666666,
+  "cohen_d": {
+   "worst concave points": 1.64,
+   "worst perimeter": 1.62,
+   "mean concave points": 1.6,
+   "worst radius": 1.6,
+   "mean perimeter": 1.53,
+   "worst area": 1.52,
+   "mean radius": 1.51,
+   "mean area": 1.47,
+   "mean concavity": 1.44,
+   "worst concavity": 1.36,
+   "mean compactness": 1.23,
+   "worst compactness": 1.22,
+   "radius error": 1.17,
+   "perimeter error": 1.15,
+   "area error": 1.13,
+   "worst texture": 0.94,
+   "worst smoothness": 0.87,
+   "worst symmetry": 0.86,
+   "mean texture": 0.86,
+   "concave points error": 0.84,
+   "mean smoothness": 0.74,
+   "mean symmetry": 0.68,
+   "worst fractal dimension": 0.67,
+   "compactness error": 0.61,
+   "concavity error": 0.52,
+   "fractal dimension error": 0.16,
+   "symmetry error": -0.01,
+   "texture error": -0.02,
+   "mean fractal dimension": -0.03,
+   "smoothness error": -0.14
+  },
+  "kor_radius_perimeter": 0.998,
+  "kor_radius_area": 0.987
+ },
+ "bolme": {
+  "egitim": 455,
+  "test": 114,
+  "test_kotu": 42
+ },
+ "cv": {
+  "Logistic Regression": {
+   "f1": 0.964,
+   "params": {
+    "C": 1
+   }
+  },
+  "Random Forest": {
+   "f1": 0.9516,
+   "params": {
+    "max_depth": 6,
+    "min_samples_leaf": 1,
+    "n_estimators": 200
+   }
+  },
+  "SVM (RBF)": {
+   "f1": 0.967,
+   "params": {
+    "C": 1,
+    "gamma": "scale"
+   }
+  }
+ },
+ "test_05": {
+  "Logistic Regression": {
+   "Accuracy": 0.9649,
+   "Precision": 0.975,
+   "Recall": 0.9286,
+   "F1": 0.9512,
+   "ROC-AUC": 0.996
+  },
+  "Random Forest": {
+   "Accuracy": 0.9649,
+   "Precision": 1.0,
+   "Recall": 0.9048,
+   "F1": 0.95,
+   "ROC-AUC": 0.9947
+  },
+  "SVM (RBF)": {
+   "Accuracy": 0.9737,
+   "Precision": 0.9756,
+   "Recall": 0.9524,
+   "F1": 0.9639,
+   "ROC-AUC": 0.9947
+  }
+ },
+ "secilen": {
+  "model": "SVM (RBF)",
+  "esik": 0.247,
+  "esik05": {
+   "Accuracy": 0.9737,
+   "Precision": 0.9756,
+   "Recall": 0.9524,
+   "F1": 0.9639,
+   "ROC-AUC": 0.9947
+  },
+  "esikAyarli": {
+   "Accuracy": 0.9649,
+   "Precision": 0.9318,
+   "Recall": 0.9762,
+   "F1": 0.9535,
+   "ROC-AUC": 0.9947
+  },
+  "cm": {
+   "Eşik 0.50": [
+    [
+     71,
+     1
+    ],
+    [
+     2,
+     40
+    ]
+   ],
+   "Eşik 0.25": [
+    [
+     69,
+     3
+    ],
+    [
+     1,
+     41
+    ]
+   ]
+  }
+ },
+ "onem": {
+  "tur": "permütasyon önemi (F1 düşüşü)",
+  "ilk5": {
+   "worst texture": 0.04,
+   "mean fractal dimension": 0.024,
+   "worst area": 0.024,
+   "worst radius": 0.023,
+   "mean texture": 0.02
+  }
+ },
+ "hatalar": [
+  {
+   "tur": "Yanlış negatif (kaçırılan kötü huylu)",
+   "olasilik": 0.053,
+   "worst concave points": 0.138,
+   "worst perimeter": 110.3,
+   "mean texture": 15.79,
+   "worst area": 812.4
+  },
+  {
+   "tur": "Yanlış pozitif (gereksiz alarm)",
+   "olasilik": 0.574,
+   "worst concave points": 0.113,
+   "worst perimeter": 99.48,
+   "mean texture": 22.54,
+   "worst area": 639.3
+  },
+  {
+   "tur": "Yanlış pozitif (gereksiz alarm)",
+   "olasilik": 0.499,
+   "worst concave points": 0.0,
+   "worst perimeter": 56.65,
+   "mean texture": 18.6,
+   "worst area": 240.1
+  },
+  {
+   "tur": "Yanlış pozitif (gereksiz alarm)",
+   "olasilik": 0.264,
+   "worst concave points": 0.048,
+   "worst perimeter": 62.56,
+   "mean texture": 14.64,
+   "worst area": 284.4
+  }
+ ],
+ "medyan": {
+  "İyi huylu medyanı": {
+   "worst concave points": 0.074,
+   "worst perimeter": 87.0,
+   "mean texture": 17.53,
+   "worst area": 547.8
+  },
+  "Kötü huylu medyanı": {
+   "worst concave points": 0.183,
+   "worst perimeter": 139.35,
+   "mean texture": 21.52,
+   "worst area": 1317.5
+  }
+ }
+}
