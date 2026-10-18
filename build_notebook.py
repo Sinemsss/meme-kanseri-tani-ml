@@ -172,7 +172,7 @@ SONUC["cv"] = {ad: {"f1": round(float(g.best_score_), 4), "params": {k.replace("
 
 olas_test = {ad: g.predict_proba(X_te)[:, 1] for ad, g in aramalar.items()}
 tablo = pd.DataFrame({ad: metrikler(y_te, p) for ad, p in olas_test.items()}).T
-SONUC["test_05"] = {ad: {k: round(float(v), 4) for k, v in r.items()} for ad, r in tablo.iterrows()}
+SONUC["test_05"] = {ad: {k: round(float(v), 6) for k, v in r.items()} for ad, r in tablo.iterrows()}
 tablo.round(3)"""),
 
     code("""# Şekil 4 — ROC eğrileri
@@ -201,8 +201,8 @@ print(f"Seçilen eşik: {ESIK:.3f}")
 karsilastir = pd.DataFrame({"Eşik 0.50": metrikler(y_te, olas_test[EN_IYI], 0.5),
                             f"Eşik {ESIK:.2f}": metrikler(y_te, olas_test[EN_IYI], ESIK)}).T
 SONUC["secilen"] = {"model": EN_IYI, "esik": round(ESIK, 3),
-                    "esik05": {k: round(float(v), 4) for k, v in karsilastir.iloc[0].items()},
-                    "esikAyarli": {k: round(float(v), 4) for k, v in karsilastir.iloc[1].items()}}
+                    "esik05": {k: round(float(v), 6) for k, v in karsilastir.iloc[0].items()},
+                    "esikAyarli": {k: round(float(v), 6) for k, v in karsilastir.iloc[1].items()}}
 karsilastir.round(3)"""),
 
     code("""# Şekil 5 — seçilen modelin karışıklık matrisleri (eşik 0.50 ve ayarlı eşik)

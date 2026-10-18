@@ -74,43 +74,43 @@
  },
  "test_05": {
   "Logistic Regression": {
-   "Accuracy": 0.9649,
+   "Accuracy": 0.964912,
    "Precision": 0.975,
-   "Recall": 0.9286,
-   "F1": 0.9512,
-   "ROC-AUC": 0.996
+   "Recall": 0.928571,
+   "F1": 0.95122,
+   "ROC-AUC": 0.996032
   },
   "Random Forest": {
-   "Accuracy": 0.9649,
+   "Accuracy": 0.964912,
    "Precision": 1.0,
-   "Recall": 0.9048,
+   "Recall": 0.904762,
    "F1": 0.95,
-   "ROC-AUC": 0.9947
+   "ROC-AUC": 0.994709
   },
   "SVM (RBF)": {
-   "Accuracy": 0.9737,
-   "Precision": 0.9756,
-   "Recall": 0.9524,
-   "F1": 0.9639,
-   "ROC-AUC": 0.9947
+   "Accuracy": 0.973684,
+   "Precision": 0.97561,
+   "Recall": 0.952381,
+   "F1": 0.963855,
+   "ROC-AUC": 0.994709
   }
  },
  "secilen": {
   "model": "SVM (RBF)",
   "esik": 0.247,
   "esik05": {
-   "Accuracy": 0.9737,
-   "Precision": 0.9756,
-   "Recall": 0.9524,
-   "F1": 0.9639,
-   "ROC-AUC": 0.9947
+   "Accuracy": 0.973684,
+   "Precision": 0.97561,
+   "Recall": 0.952381,
+   "F1": 0.963855,
+   "ROC-AUC": 0.994709
   },
   "esikAyarli": {
-   "Accuracy": 0.9649,
-   "Precision": 0.9318,
-   "Recall": 0.9762,
-   "F1": 0.9535,
-   "ROC-AUC": 0.9947
+   "Accuracy": 0.964912,
+   "Precision": 0.931818,
+   "Recall": 0.97619,
+   "F1": 0.953488,
+   "ROC-AUC": 0.994709
   },
   "cm": {
    "Eşik 0.50": [
