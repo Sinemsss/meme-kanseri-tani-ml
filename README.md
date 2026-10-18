@@ -2,6 +2,8 @@
 
 Hücre çekirdeği ölçümlerinden meme kitlesinin **iyi huylu / kötü huylu** olduğunu tahmin eden bir sınıflandırma projesi. Logistic Regression, Random Forest ve SVM karşılaştırılmış; karar eşiği, kötü huylu vakaları kaçırmamak için recall öncelikli olarak ayarlanmıştır.
 
+**Etkileşimli sunum:** https://meme-kanseri-ml.netlify.app — karar eşiğini kaydırarak sonuçların nasıl değiştiğini deneyin.
+
 [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Sinemsss/meme-kanseri-tani-ml/blob/main/meme_kanseri_tani.ipynb)
 
 **Veri seti:** Breast Cancer Wisconsin (Diagnostic), UCI Machine Learning Repository — CC BY 4.0
@@ -21,5 +23,6 @@ https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic (sciki
 | `sekiller/` | Rapordaki şekiller |
 | `sonuclar.json` | Notebook'un ürettiği tüm sayısal sonuçlar |
 | `build_notebook.py`, `yorumlar.py` | Notebook'u üreten betik |
+| `site/` | Netlify'daki etkileşimli sayfa (`site_hazirla.sh` ile güncellenir) |
 
 > Bu model bir karar destek aracıdır; tıbbi tanı koymaz.

@@ -11,6 +11,7 @@ const KOYU = '1E3A5F', VURGU = 'C2410C', GRI = '57534E', ACIK = 'F1F5F9'
 const FONT = 'Calibri'
 const GH = 'https://github.com/Sinemsss/meme-kanseri-tani-ml'
 const COLAB = 'https://colab.research.google.com/github/Sinemsss/meme-kanseri-tani-ml/blob/main/meme_kanseri_tani.ipynb'
+const SITE = 'https://meme-kanseri-ml.netlify.app'
 const UCI = 'https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic'
 
 const yuzde = (v) => (v * 100).toFixed(1).replace('.', ',')
@@ -78,7 +79,8 @@ const doc = new Document({
       ]),
       new Paragraph({ spacing: { before: 60, after: 20 }, children: [k('Kod (GitHub): ', { size: 18 }), link(GH, GH)] }),
       new Paragraph({ spacing: { after: 20 }, children: [k('Notebook (Colab): ', { size: 18 }), link('Colab’da aç', COLAB)] }),
-      new Paragraph({ spacing: { after: 60 }, children: [k('Veri kaynağı: ', { size: 18 }), link(UCI, UCI)] }),
+      new Paragraph({ spacing: { after: 20 }, children: [k('Veri kaynağı: ', { size: 18 }), link(UCI, UCI)] }),
+      new Paragraph({ spacing: { after: 60 }, children: [k('Etkileşimli sunum (Netlify): ', { size: 18 }), link(SITE, SITE)] }),
 
       H('1. Problem tanımı'),
       P([t('İnce iğne aspirasyonu (FNA) ile alınan meme kitlesi örneğinin mikroskop görüntüsünden ölçülen '), k('hücre çekirdeği özellikleri'),

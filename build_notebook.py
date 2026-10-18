@@ -257,6 +257,19 @@ medyan = X_tr.groupby(y_tr)[goster[2:]].median().rename(index={0: "İyi huylu me
 SONUC["medyan"] = {i: {k: round(float(v), 3) for k, v in r.items()} for i, r in medyan.iterrows()}
 display(hata[goster]); display(medyan.round(3))"""),
 
+    code("""# Etkileşimli web sayfası (site/) için test olasılıkları ve ROC noktaları
+site_veri = {
+    "y": y_te.tolist(),
+    "ornek": [int(i) for i in X_te.index],
+    "olasilik": {ad: [round(float(v), 5) for v in p] for ad, p in olas_test.items()},
+    "ozellik": {c: [round(float(v), 4) for v in X_te[c]] for c in ["worst concave points", "worst perimeter", "worst area", "mean texture"]},
+    "roc": {ad: dict(zip(["fpr", "tpr"], [np.round(a, 4).tolist() for a in roc_curve(y_te, p)[:2]])) for ad, p in olas_test.items()},
+    "medyan": SONUC["medyan"], "secilen": EN_IYI, "esik": round(ESIK, 4),
+}
+Path("site").mkdir(exist_ok=True)
+Path("site/veri.json").write_text(json.dumps(site_veri, ensure_ascii=False), encoding="utf-8")
+print("site/veri.json:", len(site_veri["y"]), "test örneği")"""),
+
     code("""Path("sonuclar.json").write_text(json.dumps(SONUC, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
 print("sonuclar.json kaydedildi")"""),
 

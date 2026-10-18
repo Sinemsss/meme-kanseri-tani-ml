@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meme Kanseri Tanısında Makine Öğrenmesi</title>
+<meta name="description" content="Hücre çekirdeği ölçümlerinden tümörün iyi/kötü huylu sınıflandırılması: model karşılaştırması ve etkileşimli karar eşiği.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='%231E3A5F'/><circle cx='50' cy='50' r='16' fill='%23F97316'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --zemin: #F8FAFC; --kart: #FFFFFF; --metin: #0F172A; --soluk: #475569; --cizgi: #E2E8F0;
+    --lacivert: #1E3A5F; --kotu: #C2410C; --kotu-acik: #FFEDD5; --iyi: #0F766E; --iyi-acik: #CCFBF1;
+    --vurgu: #F97316;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--zemin); color: var(--metin); font-family: Inter, system-ui, sans-serif; line-height: 1.6; }
+  a { color: var(--lacivert); }
+  .kap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  header.ust { background: var(--lacivert); color: #fff; padding: 56px 0 44px; }
+  header.ust .etiket { color: #FDBA74; font-weight: 700; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+  header.ust h1 { font-size: clamp(28px, 4.6vw, 46px); line-height: 1.12; letter-spacing: -1px; margin: 10px 0 12px; max-width: 820px; }
+  header.ust p { color: #CBD5E1; max-width: 720px; margin: 0; font-size: 17px; }
+  .linkler { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+  .dugme { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; text-decoration: none; }
+  .dugme.dolu { background: var(--vurgu); color: #fff; }
+  .dugme.bos { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+  .istatler { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: -30px; }
+  .istat { background: var(--kart); border-radius: 16px; padding: 18px 20px; box-shadow: 0 6px 24px -12px rgba(15,23,42,.25); }
+  .istat b { display: block; font-size: 30px; letter-spacing: -1px; }
+  .istat span { color: var(--soluk); font-size: 13px; }
+  section { padding: 44px 0 8px; }
+  h2 { font-size: 26px; letter-spacing: -.5px; margin: 0 0 6px; }
+  .alt-baslik { color: var(--soluk); margin: 0 0 22px; max-width: 760px; }
+  .kart { background: var(--kart); border: 1px solid var(--cizgi); border-radius: 16px; padding: 22px; }
+  .izgara2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .izgara3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 10px; }
+  figcaption { color: var(--soluk); font-size: 13px; margin-top: 8px; }
+  ul.bulgu { padding-left: 20px; margin: 0; }
+  ul.bulgu li { margin-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--cizgi); }
+  th { color: var(--soluk); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  td.sayi, th.sayi { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.secili td { background: #FFF7ED; font-weight: 600; }
+  .tablo-kap { overflow-x: auto; }
+
+  /* Etkileşimli eşik aracı */
+  .arac { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; }
+  .kontroller { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-bottom: 16px; }
+  .kontroller label { font-size: 13px; color: var(--soluk); font-weight: 600; }
+  select { font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--cizgi); background: #fff; }
+  .esik-satir { display: flex; align-items: center; gap: 14px; }
+  input[type=range] { flex: 1; accent-color: var(--vurgu); height: 28px; }
+  .esik-deger { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 72px; text-align: right; }
+  .hazir { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hazir button { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--cizgi); background: #fff; cursor: pointer; }
+  .hazir button:hover { border-color: var(--vurgu); }
+  .hazir button[aria-pressed=true] { background: var(--lacivert); color: #fff; border-color: var(--lacivert); }
+  svg text { font-family: Inter, sans-serif; }
+  .cm { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px; align-items: stretch; font-size: 13px; }
+  .cm .hucre { border-radius: 12px; padding: 14px 10px; text-align: center; }
+  .cm .hucre b { display: block; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .cm .hucre span { font-size: 12px; }
+  .cm .eksen { color: var(--soluk); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .dogru { background: #ECFDF5; color: #065F46; }
+  .yanlis-fn { background: #FEE2E2; color: #991B1B; outline: 2px solid #FCA5A5; }
+  .yanlis-fp { background: #FFF7ED; color: #9A3412; }
+  .metrikler { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+  .metrik { border: 1px solid var(--cizgi); border-radius: 12px; padding: 10px 12px; }
+  .metrik span { font-size: 12px; color: var(--soluk); }
+  .metrik b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .metrik.ana { border-color: var(--vurgu); background: #FFF7ED; }
+  .yorum { margin-top: 14px; font-size: 14px; color: var(--soluk); min-height: 44px; }
+  .hatalar { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .hata { border-radius: 14px; padding: 14px; border: 1px solid var(--cizgi); background: #fff; font-size: 13px; }
+  .hata .tur { font-weight: 700; font-size: 13px; }
+  .hata.fn .tur { color: #B91C1C; } .hata.fp .tur { color: #C2410C; }
+  .hata dl { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; margin: 8px 0 0; }
+  .hata dt { color: var(--soluk); } .hata dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .uyari { background: #FEF3C7; border: 1px solid #FDE68A; color: #78350F; border-radius: 12px; padding: 12px 16px; font-size: 14px; }
+  footer { padding: 40px 0 50px; color: var(--soluk); font-size: 13px; }
+  @media (max-width: 860px) {
+    .istatler { grid-template-columns: repeat(2, 1fr); }
+    .izgara2, .arac { grid-template-columns: 1fr; }
+    .izgara3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="ust">
+  <div class="kap">
+    <div class="etiket">Makine öğrenmesi · İkili sınıflandırma</div>
+    <h1>Meme kanseri tanısında makine öğrenmesi</h1>
+    <p>Hücre çekirdeği ölçümlerinden bir meme kitlesinin iyi huylu mu kötü huylu mu olduğunu tahmin eden üç model karşılaştırıldı. Kötü huylu vakayı kaçırmamak için karar eşiği recall öncelikli olarak ayarlandı.</p>
+    <div class="linkler">
+      <a class="dugme dolu" href="proje_raporu.pdf">Proje raporu (PDF)</a>
+      <a class="dugme bos" href="https://github.com/Sinemsss/meme-kanseri-tani-ml">GitHub</a>
+      <a class="dugme bos" href="https://colab.research.google.com/github/Sinemsss/meme-kanseri-tani-ml/blob/main/meme_kanseri_tani.ipynb">Colab’da aç</a>
+    </div>
+  </div>
+</header>
+
+<div class="kap">
+  <div class="istatler" id="istatler"></div>
+
+  <section>
+    <h2>Problem</h2>
+    <p class="alt-baslik">İnce iğne aspirasyonuyla alınan örneğin mikroskop görüntüsünden ölçülen 30 hücre çekirdeği özelliği (yarıçap, doku, çevre, alan, içbükeylik…) girdi; kitlenin kötü huylu olup olmadığı çıktı. Model tanı koymaz, şüpheli örnekleri öne çıkaran bir <b>karar destek aracıdır</b>. Kötü huylu bir vakayı kaçırmak, iyi huylu bir örneği tekrar incelemeye göndermekten çok daha maliyetli olduğu için temel metrik <b>recall</b>’dur.</p>
+  </section>
+
+  <section>
+    <h2>Veri</h2>
+    <p class="alt-baslik"><a href="https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic">Breast Cancer Wisconsin (Diagnostic)</a> · UCI Machine Learning Repository · CC BY 4.0 · 569 örnek, 30 sayısal özellik, eksik değer yok.</p>
+    <div class="izgara2">
+      <figure class="kart"><img src="sekiller/1_sinif_dagilimi.png" alt="Sınıf dağılımı: 357 iyi huylu, 212 kötü huylu" loading="lazy"><figcaption>Sınıflar orta derecede dengesiz (%63 / %37); bölme katmanlı yapıldı.</figcaption></figure>
+      <figure class="kart"><img src="sekiller/3_korelasyon.png" alt="Mean özellikleri arası korelasyon ısı haritası" loading="lazy"><figcaption>radius, perimeter ve area neredeyse aynı bilgiyi taşıyor (r ≈ 0,99–1,00).</figcaption></figure>
+    </div>
+    <figure class="kart" style="margin-top:18px"><img src="sekiller/2_ozellik_dagilimlari.png" alt="Dört özelliğin sınıflara göre histogramları" loading="lazy"><figcaption>Boyut ve içbükeylik özelliklerinde sınıflar ayrışıyor; doku (texture) özelliklerinde örtüşme fazla.</figcaption></figure>
+  </section>
+
+  <section>
+    <h2>Modeller</h2>
+    <p class="alt-baslik">Üç model aynı katmanlı 5 katlı çapraz doğrulama ve ızgara aramasıyla ayarlandı. Final model test verisine bakılmadan, CV skoruna göre seçildi.</p>
+    <div class="kart tablo-kap"><table id="modelTablo"></table></div>
+  </section>
+
+  <section>
+    <h2>Karar eşiğini sen ayarla</h2>
+    <p class="alt-baslik">Aşağıdaki noktalar test kümesindeki 114 örneğin modelden aldığı <b>gerçek kötü huylu olasılıkları</b>. Eşiği sola çekersen daha çok kötü huylu vaka yakalanır ama yanlış alarm artar. Halkalı noktalar, o eşikte yanlış sınıflanan örnekler.</p>
+    <div class="arac">
+      <div class="kart">
+        <div class="kontroller">
+          <div><label for="model">Model</label><br><select id="model"></select></div>
+          <div class="hazir" role="group" aria-label="Hazır eşikler">
+            <button type="button" data-esik="0.5">Varsayılan 0,50</button>
+            <button type="button" data-esik="ayarli">Recall öncelikli</button>
+          </div>
+        </div>
+        <div class="esik-satir">
+          <input type="range" id="esik" min="0.01" max="0.99" step="0.01" value="0.5" aria-label="Karar eşiği">
+          <div class="esik-deger" id="esikDeger">0,50</div>
+        </div>
+        <svg id="serit" viewBox="0 0 640 210" width="100%" role="img" aria-label="Test örneklerinin olasılık dağılımı ve karar eşiği"></svg>
+        <p class="yorum" style="margin-top:6px">Her nokta bir test örneği; yatay konumu, modelin o örneğe verdiği kötü huylu olasılığı. Turuncu alan, modelin “kötü huylu” dediği bölge. Noktanın üzerine gelince örnek numarası ve olasılığı görünür. Eşiği kaydırıp kırmızı satırdaki halkalı noktaların (kaçırılan vakalar) turuncu alana girmesini izleyin.</p>
+      </div>
+      <div class="kart">
+        <div class="cm" id="cm"></div>
+        <div class="metrikler" id="metrikler"></div>
+        <p class="yorum" id="yorum"></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>ROC eğrileri</h2>
+    <p class="alt-baslik">Üç modelin sıralama başarısı neredeyse aynı (AUC &gt; 0,99). Turuncu nokta, seçili model için yukarıda ayarladığın eşiğin eğri üzerindeki yeri.</p>
+    <div class="izgara2">
+      <div class="kart"><svg id="roc" viewBox="0 0 420 380" width="100%" role="img" aria-label="ROC eğrileri"></svg></div>
+      <div class="kart">
+        <ul class="bulgu">
+          <li><b>Fark eşikte.</b> Random Forest hiç yanlış alarm vermiyor ama 0,50 eşikte 4 kötü huylu vakayı kaçırıyor; bu problem için riskli bir denge.</li>
+          <li><b>Eşik nasıl seçildi?</b> Test verisi kullanılmadan, eğitim kümesindeki çapraz doğrulama olasılıklarında “recall ≥ 0,98 olacak en yüksek precision” kuralıyla.</li>
+          <li><b>Küçük test kümesi.</b> 42 kötü huylu örnek var; tek örnek recall’u yaklaşık 2,4 puan oynatıyor. Modeller arasındaki 1–2 örneklik fark güçlü bir üstünlük sayılmamalı.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Bu eşikte model nerede yanılıyor?</h2>
+    <p class="alt-baslik" id="hataOzet"></p>
+    <div class="hatalar" id="hatalar"></div>
+  </section>
+
+  <section>
+    <h2>Sonuç</h2>
+    <div class="kart">
+      <ul class="bulgu">
+        <li>Model boyut ve şekil özelliklerinin aynı yönde sinyal verdiği tipik vakalarda çok başarılı; hatalar, özelliklerin birbiriyle çeliştiği sınırda vakalarda toplanıyor.</li>
+        <li>Kaçırılan vaka ölçümlerin çoğunda iyi huylu görünen atipik bir malign örnek; olasılığı çok düşük olduğu için eşiği düşürmek onu yakalamıyor, yalnızca yanlış alarmı artırıyor.</li>
+        <li>Geliştirme: tekrarlı çapraz doğrulama ile güven aralıkları, farklı merkezlerden veriyle dış doğrulama, belirsiz olasılık aralığını uzmana yönlendiren üç bölgeli karar kuralı.</li>
+      </ul>
+    </div>
+    <p class="uyari" style="margin-top:18px">Bu çalışma bir eğitim projesidir. Model tıbbi tanı koymaz ve klinik kararlarda kullanılmamalıdır.</p>
+  </section>
+</div>
+
+<footer><div class="kap">Veri: W. Wolberg, O. Mangasarian, N. Street, W. Street — Breast Cancer Wisconsin (Diagnostic), UCI ML Repository (CC BY 4.0). Kod ve rapor: <a href="https://github.com/Sinemsss/meme-kanseri-tani-ml">github.com/Sinemsss/meme-kanseri-tani-ml</a></div></footer>
+
+<script>
+const RENK = { kotu: '#C2410C', iyi: '#0F766E', vurgu: '#F97316', cizgi: '#E2E8F0', soluk: '#64748B' }
+const MODEL_RENK = { 'Logistic Regression': '#1D4ED8', 'Random Forest': '#15803D', 'SVM (RBF)': '#B45309' }
+const sayi = (v, n = 1) => v.toLocaleString('tr-TR', { minimumFractionDigits: n, maximumFractionDigits: n })
+const yuzde = (v) => '%' + sayi(v * 100, 1)
+const svgEl = (ad, oz = {}, ic = '') => { const e = document.createElementNS('http://www.w3.org/2000/svg', ad); for (const [k, v] of Object.entries(oz)) e.setAttribute(k, v); if (ic) e.textContent = ic; return e }
+
+let V, S, model, esik = 0.5
+
+function hesapla(olas, t) {
+  let tp = 0, fp = 0, tn = 0, fn = 0
+  V.y.forEach((g, i) => { const p = olas[i] >= t ? 1 : 0; if (g && p) tp++; else if (!g && p) fp++; else if (!g && !p) tn++; else fn++ })
+  const prec = tp + fp ? tp / (tp + fp) : 0, rec = tp / (tp + fn)
+  return { tp, fp, tn, fn, acc: (tp + tn) / V.y.length, prec, rec, f1: prec + rec ? 2 * prec * rec / (prec + rec) : 0 }
+}
+
+function istatlar() {
+  const s = S.secilen
+  const kutu = [[yuzde(s.esikAyarli.Recall), 'Recall (eşik ' + sayi(s.esik, 2) + ')'], [yuzde(s.esik05.Accuracy), 'Doğruluk (eşik 0,50)'],
+    [sayi(s.esik05['ROC-AUC'], 3), 'ROC-AUC'], ['569', 'örnek · 30 özellik']]
+  document.getElementById('istatler').innerHTML = kutu.map(([b, s]) => `<div class="istat"><b>${b}</b><span>${s}</span></div>`).join('')
+}
+
+function modelTablosu() {
+  const satirlar = Object.entries(S.test_05).map(([ad, m]) => `<tr class="${ad === S.secilen.model ? 'secili' : ''}"><td>${ad}${ad === S.secilen.model ? ' ★' : ''}</td>
+    <td class="sayi">${sayi(S.cv[ad].f1, 3)}</td><td class="sayi">${sayi(m.Accuracy, 3)}</td><td class="sayi">${sayi(m.Precision, 3)}</td>
+    <td class="sayi">${sayi(m.Recall, 3)}</td><td class="sayi">${sayi(m.F1, 3)}</td><td class="sayi">${sayi(m['ROC-AUC'], 3)}</td></tr>`).join('')
+  document.getElementById('modelTablo').innerHTML = `<thead><tr><th>Model</th><th class="sayi">CV F1</th><th class="sayi">Accuracy</th><th class="sayi">Precision</th><th class="sayi">Recall</th><th class="sayi">F1</th><th class="sayi">ROC-AUC</th></tr></thead><tbody>${satirlar}</tbody>
+    <caption style="caption-side:bottom;text-align:left;color:#64748B;font-size:13px;padding-top:10px">Test kümesi (114 örnek, 42 kötü huylu), eşik 0,50. ★ CV F1’e göre seçilen model.</caption>`
+}
+
+function serit() {
+  const svg = document.getElementById('serit'); svg.innerHTML = ''
+  const olas = V.olasilik[model], X0 = 40, X1 = 620, x = (p) => X0 + p * (X1 - X0)
+  const satir = { 1: 62, 0: 142 }
+  // Eksen ve etiketler
+  svg.append(svgEl('line', { x1: X0, x2: X1, y1: 186, y2: 186, stroke: RENK.cizgi }))
+  for (let p = 0; p <= 1.001; p += 0.25) {
+    svg.append(svgEl('line', { x1: x(p), x2: x(p), y1: 186, y2: 191, stroke: RENK.soluk }))
+    svg.append(svgEl('text', { x: x(p), y: 205, 'text-anchor': 'middle', 'font-size': 11, fill: RENK.soluk }, sayi(p, 2)))
+  }
+  svg.append(svgEl('text', { x: X0, y: 24, 'font-size': 12, 'font-weight': 600, fill: RENK.kotu }, 'Gerçekte kötü huylu (42)'))
+  svg.append(svgEl('text', { x: X0, y: 104, 'font-size': 12, 'font-weight': 600, fill: RENK.iyi }, 'Gerçekte iyi huylu (72)'))
+  // Bölge gölgesi: eşiğin sağı "kötü huylu" tahmini
+  svg.append(svgEl('rect', { x: x(esik), y: 34, width: X1 - x(esik), height: 140, fill: '#FFF7ED' }))
+  // Noktalar (deterministik titreşim)
+  V.y.forEach((g, i) => {
+    const p = olas[i], yan = (p >= esik ? 1 : 0) !== g
+    const jit = ((V.ornek[i] * 37) % 29) - 14
+    const c = svgEl('circle', { cx: x(p), cy: satir[g] + jit, r: yan ? 6 : 4.2, fill: g ? RENK.kotu : RENK.iyi, 'fill-opacity': yan ? 1 : 0.7,
+      stroke: yan ? '#0F172A' : 'none', 'stroke-width': yan ? 2 : 0 })
+    c.append(svgEl('title', {}, `Örnek #${V.ornek[i]} · olasılık ${sayi(p, 3)} · gerçek: ${g ? 'kötü' : 'iyi'} huylu`))
+    svg.append(c)
+  })
+  svg.append(svgEl('line', { x1: x(esik), x2: x(esik), y1: 30, y2: 186, stroke: RENK.vurgu, 'stroke-width': 2.5 }))
+  svg.append(svgEl('text', { x: Math.min(x(esik) + 6, X1 - 70), y: 46, 'font-size': 11, 'font-weight': 700, fill: '#9A3412' }, 'eşik ' + sayi(esik, 2)))
+}
+
+function matris(m) {
+  document.getElementById('cm').innerHTML = `
+    <div></div><div class="eksen">Tahmin: iyi huylu</div><div class="eksen">Tahmin: kötü huylu</div>
+    <div class="eksen">Gerçek<br>iyi huylu</div><div class="hucre dogru"><b>${m.tn}</b><span>doğru</span></div><div class="hucre yanlis-fp"><b>${m.fp}</b><span>yanlış alarm</span></div>
+    <div class="eksen">Gerçek<br>kötü huylu</div><div class="hucre ${m.fn ? 'yanlis-fn' : 'dogru'}"><b>${m.fn}</b><span>kaçırılan</span></div><div class="hucre dogru"><b>${m.tp}</b><span>yakalanan</span></div>`
+  document.getElementById('metrikler').innerHTML = [['Recall', m.rec, true], ['Precision', m.prec], ['F1', m.f1], ['Accuracy', m.acc]]
+    .map(([ad, v, ana]) => `<div class="metrik ${ana ? 'ana' : ''}"><span>${ad}</span><b>${yuzde(v)}</b></div>`).join('')
+  const kacan = m.fn === 0 ? 'Hiç kötü huylu vaka kaçırılmıyor' : `${m.fn} kötü huylu vaka kaçırılıyor`
+  document.getElementById('yorum').textContent = `${kacan}; ${m.fp} iyi huylu örnek gereksiz yere “tekrar incele” olarak işaretleniyor. 42 kötü huylu vakanın ${m.tp}’ü yakalanıyor.`
+}
+
+function roc() {
+  const svg = document.getElementById('roc'); svg.innerHTML = ''
+  const L = 48, R = 400, T = 16, B = 330, x = (v) => L + v * (R - L), y = (v) => B - v * (B - T)
+  svg.append(svgEl('rect', { x: L, y: T, width: R - L, height: B - T, fill: '#F8FAFC', stroke: RENK.cizgi }))
+  for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+    svg.append(svgEl('text', { x: x(v), y: B + 18, 'text-anchor': 'middle', 'font-size': 11, fill: RENK.soluk }, sayi(v, 2)))
+    svg.append(svgEl('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: RENK.soluk }, sayi(v, 2)))
+  }
+  svg.append(svgEl('line', { x1: x(0), y1: y(0), x2: x(1), y2: y(1), stroke: '#CBD5E1', 'stroke-dasharray': '4 4' }))
+  svg.append(svgEl('text', { x: (L + R) / 2, y: B + 38, 'text-anchor': 'middle', 'font-size': 12, fill: RENK.soluk }, 'Yanlış pozitif oranı'))
+  const yEt = svgEl('text', { x: 14, y: (T + B) / 2, 'text-anchor': 'middle', 'font-size': 12, fill: RENK.soluk, transform: `rotate(-90 14 ${(T + B) / 2})` }, 'Doğru pozitif oranı (recall)')
+  svg.append(yEt)
+  Object.entries(V.roc).forEach(([ad, r], k) => {
+    const d = r.fpr.map((f, i) => `${i ? 'L' : 'M'}${x(f).toFixed(1)},${y(r.tpr[i]).toFixed(1)}`).join('')
+    svg.append(svgEl('path', { d, fill: 'none', stroke: MODEL_RENK[ad], 'stroke-width': ad === model ? 3 : 1.6, 'stroke-opacity': ad === model ? 1 : 0.55 }))
+    svg.append(svgEl('rect', { x: x(0.42), y: y(0.36) + k * 20 - 9, width: 12, height: 4, fill: MODEL_RENK[ad] }))
+    svg.append(svgEl('text', { x: x(0.42) + 18, y: y(0.36) + k * 20 - 4, 'font-size': 11.5, fill: '#0F172A', 'font-weight': ad === model ? 700 : 400 }, `${ad} · AUC ${sayi(S.test_05[ad]['ROC-AUC'], 3)}`))
+  })
+  const m = hesapla(V.olasilik[model], esik)
+  const nIyi = V.y.filter((g) => !g).length
+  svg.append(svgEl('circle', { cx: x(m.fp / nIyi), cy: y(m.rec), r: 7, fill: RENK.vurgu, stroke: '#fff', 'stroke-width': 2 }))
+}
+
+function hatalar() {
+  const olas = V.olasilik[model], med = V.medyan, ozler = Object.keys(V.ozellik)
+  const liste = V.y.map((g, i) => ({ g, i, p: olas[i] })).filter((o) => (o.p >= esik ? 1 : 0) !== o.g).sort((a, b) => b.g - a.g || a.p - b.p)
+  document.getElementById('hataOzet').textContent = liste.length
+    ? `${model}, eşik ${sayi(esik, 2)}: ${liste.length} hatalı örnek. Kırmızı = kaçırılan kötü huylu, turuncu = yanlış alarm. Değerler eğitim kümesindeki sınıf medyanlarıyla karşılaştırılıyor.`
+    : 'Bu eşikte hiç hata yok.'
+  document.getElementById('hatalar').innerHTML = liste.map(({ g, i, p }) => `
+    <div class="hata ${g ? 'fn' : 'fp'}">
+      <div class="tur">${g ? 'Kaçırılan kötü huylu' : 'Yanlış alarm (iyi huylu)'}</div>
+      <div>Örnek #${V.ornek[i]} · kötü huylu olasılığı <b>${sayi(p, 3)}</b></div>
+      <dl>${ozler.map((o) => `<dt>${o}</dt><dd>${sayi(V.ozellik[o][i], o.includes('points') ? 3 : 1)} <span style="color:#94A3B8">(${sayi(med['İyi huylu medyanı'][o], o.includes('points') ? 3 : 1)} / ${sayi(med['Kötü huylu medyanı'][o], o.includes('points') ? 3 : 1)})</span></dd>`).join('')}</dl>
+    </div>`).join('')
+}
+
+function guncelle() {
+  document.getElementById('esikDeger').textContent = sayi(esik, 2)
+  document.querySelectorAll('.hazir button').forEach((b) => {
+    const hedef = b.dataset.esik === 'ayarli' ? V.esik : +b.dataset.esik
+    b.setAttribute('aria-pressed', Math.abs(hedef - esik) < 0.005)
+  })
+  const m = hesapla(V.olasilik[model], esik)
+  serit(); matris(m); roc(); hatalar()
+}
+
+Promise.all([fetch('veri.json').then((r) => r.json()), fetch('sonuclar.json').then((r) => r.json())]).then(([v, s]) => {
+  V = v; S = s; model = V.secilen
+  const sec = document.getElementById('model')
+  sec.innerHTML = Object.keys(V.olasilik).map((ad) => `<option ${ad === model ? 'selected' : ''}>${ad}</option>`).join('')
+  document.querySelector('.hazir [data-esik=ayarli]').textContent = `Recall öncelikli ${sayi(V.esik, 2)}`
+  sec.addEventListener('change', () => { model = sec.value; guncelle() })
+  const r = document.getElementById('esik')
+  r.addEventListener('input', () => { esik = +r.value; guncelle() })
+  document.querySelectorAll('.hazir button').forEach((b) => b.addEventListener('click', () => {
+    esik = b.dataset.esik === 'ayarli' ? V.esik : +b.dataset.esik; r.value = esik.toFixed(2); guncelle()
+  }))
+  istatlar(); modelTablosu(); guncelle()
+}).catch((e) => { document.body.insertAdjacentHTML('afterbegin', `<p class="uyari">Veri yüklenemedi: ${e.message}</p>`) })
+</script>
+</body>
+</html>
